@@ -1,0 +1,62 @@
+{
+  "name": "cyber-client",
+  "version": "1.1.20",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "scripts": {
+    "prepare": "npm run build",
+    "precommit": "NODE_ENV=production lint-staged",
+    "test": "cross-env NODE_ENV=test mocha --require @babel/register",
+    "test:watch": "npm test -- --watch",
+    "build": "npm run clean && npm run build-browser && npm run build-node",
+    "build-browser": "webpack --config webpack.prod.js && webpack --config webpack.debug.js",
+    "build-node": "mkdir -p ./lib && cp -r ./src/* ./lib/ && babel ./src --out-dir ./lib",
+    "clean": "rm -rf lib && rm -rf dist-web"
+  },
+  "files": [
+    "dist-web",
+    "lib",
+    "src"
+  ],
+  "author": "Good guys from Golos",
+  "dependencies": {
+    "@babel/runtime": "^7.2.0",
+    "cyberwayjs": "^20.0.0-beta3.5",
+    "idb": "^3.0.2",
+    "node-fetch": "^2.3.0",
+    "text-encoding": "^0.7.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.0",
+    "@babel/core": "^7.2.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-decorators": "^7.0.0",
+    "@babel/plugin-proposal-do-expressions": "^7.0.0",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
+    "@babel/plugin-proposal-function-sent": "^7.0.0",
+    "@babel/plugin-proposal-json-strings": "^7.0.0",
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.0.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.0.0",
+    "@babel/plugin-proposal-numeric-separator": "^7.0.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.0.0",
+    "@babel/plugin-proposal-pipeline-operator": "^7.0.0",
+    "@babel/plugin-proposal-throw-expressions": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-syntax-import-meta": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
+    "@babel/register": "^7.0.0",
+    "babel-eslint": "^10.0.1",
+    "babel-loader": "^8.0.4",
+    "eslint": "^5.12.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "mocha": "^5.2.0",
+    "prettier": "^1.16.4",
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2"
+  }
+}
