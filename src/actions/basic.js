@@ -77,9 +77,10 @@ export default class BasicApi {
       );
     }
 
-    if (broadcast) {
+    if (broadcast || providebw) {
       return await this.sendTransaction(actions, { providebw, broadcast });
     }
+
     return actions;
   };
 
