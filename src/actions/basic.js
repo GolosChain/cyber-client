@@ -77,13 +77,14 @@ export default class BasicApi {
       );
     }
 
-    if (broadcast) {
-      return await this.sendTransaction(actions, { providebw, broadcast });
+    if (broadcast || providebw) {
+      return await this.transact(actions, { providebw, broadcast });
     }
+
     return actions;
   };
 
-  async sendTransaction(actions, options) {
+  async transact(actions, options) {
     return await this.api.transact(
       { actions },
       {
@@ -95,6 +96,6 @@ export default class BasicApi {
   }
 
   sendActions(_, actions, options) {
-    return this.sendTransaction(actions, options);
+    return this.transact(actions, options);
   }
 }
