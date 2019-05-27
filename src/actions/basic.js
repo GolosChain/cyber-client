@@ -1,3 +1,5 @@
+import { Serialize } from 'cyberwayjs';
+
 export const BLOCKS_BEHIND = 3;
 export const EXPIRE_SECONDS = 30;
 
@@ -93,6 +95,21 @@ export default class BasicApi {
         expireSeconds: EXPIRE_SECONDS,
       }
     );
+  }
+
+  async makeTransactionHeader({ expires }) {
+    const info = await this.api.rpc.get_info();
+    const refBlock = await this.api.rpc.get_block(info.head_block_num - BLOCKS_BEHIND);
+
+    return {
+      max_net_usage_words: 0,
+      max_cpu_usage_ms: 0,
+      delay_sec: 0,
+      context_free_actions: [],
+      actions: [],
+      transaction_extensions: [],
+      ...Serialize.transactionHeader(refBlock, expires),
+    };
   }
 
   sendActions(_, actions, options) {
