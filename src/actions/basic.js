@@ -60,10 +60,23 @@ export default class BasicApi {
     };
   }
 
-  _transaction = async (contractAccount, actionName, actor, data, { providebw = false, broadcast = true } = {}) => {
+  _transaction = async (
+    contractAccount,
+    actionName,
+    actor,
+    data,
+    { providebw = false, broadcast = true, msig = false, msigExpires = 600 } = {}
+  ) => {
     this._validateTransactionOptions(contractAccount, actionName, actor, data);
 
     const actions = [this.prepareAction(contractAccount, actionName, actor, data)];
+
+    if (msig) {
+      return {
+        ...(await this._makeTransactionHeader({ expires: msigExpires })),
+        actions: await this.api.serializeActions(actions),
+      };
+    }
 
     if (providebw) {
       actions.push(
@@ -97,7 +110,7 @@ export default class BasicApi {
     );
   }
 
-  async makeTransactionHeader({ expires }) {
+  async _makeTransactionHeader({ expires }) {
     const info = await this.api.rpc.get_info();
     const refBlock = await this.api.rpc.get_block(info.head_block_num - BLOCKS_BEHIND);
 
