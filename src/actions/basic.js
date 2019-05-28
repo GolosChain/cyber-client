@@ -1,3 +1,5 @@
+import { Serialize } from 'cyberwayjs';
+
 export const BLOCKS_BEHIND = 3;
 export const EXPIRE_SECONDS = 30;
 
@@ -58,10 +60,23 @@ export default class BasicApi {
     };
   }
 
-  _transaction = async (contractAccount, actionName, actor, data, { providebw = false, broadcast = true } = {}) => {
+  _transaction = async (
+    contractAccount,
+    actionName,
+    actor,
+    data,
+    { providebw = false, broadcast = true, msig = false, msigExpires = 600 } = {}
+  ) => {
     this._validateTransactionOptions(contractAccount, actionName, actor, data);
 
     const actions = [this.prepareAction(contractAccount, actionName, actor, data)];
+
+    if (msig) {
+      return {
+        ...(await this._makeTransactionHeader({ expires: msigExpires })),
+        actions: await this.api.serializeActions(actions),
+      };
+    }
 
     if (providebw) {
       actions.push(
@@ -93,6 +108,21 @@ export default class BasicApi {
         expireSeconds: EXPIRE_SECONDS,
       }
     );
+  }
+
+  async _makeTransactionHeader({ expires }) {
+    const info = await this.api.rpc.get_info();
+    const refBlock = await this.api.rpc.get_block(info.head_block_num - BLOCKS_BEHIND);
+
+    return {
+      max_net_usage_words: 0,
+      max_cpu_usage_ms: 0,
+      delay_sec: 0,
+      context_free_actions: [],
+      actions: [],
+      transaction_extensions: [],
+      ...Serialize.transactionHeader(refBlock, expires),
+    };
   }
 
   sendActions(_, actions, options) {
