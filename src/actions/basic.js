@@ -115,12 +115,7 @@ export default class BasicApi {
     const refBlock = await this.api.rpc.get_block(info.head_block_num - BLOCKS_BEHIND);
 
     return {
-      max_net_usage_words: 0,
-      max_cpu_usage_ms: 0,
-      delay_sec: 0,
-      context_free_actions: [],
-      actions: [],
-      transaction_extensions: [],
+      ...this.api.getDefaultTransactionHeader(),
       ...Serialize.transactionHeader(refBlock, expires),
     };
   }
