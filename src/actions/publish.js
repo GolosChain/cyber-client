@@ -18,6 +18,7 @@ export default class Publish extends Basic {
     'setlimit',
     'setparams',
     'reblog',
+    'erasereblog',
   ];
 
   defaults = {
