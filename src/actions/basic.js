@@ -65,7 +65,7 @@ export default class BasicApi {
     actionName,
     actor,
     data,
-    { providebw = false, broadcast = true, msig = false, msigExpires = 600 } = {}
+    { broadcast = true, msig = false, msigExpires = 600, providebw = false, bwprovider = 'cyber' } = {}
   ) => {
     this._validateTransactionOptions(contractAccount, actionName, actor, data);
 
@@ -83,9 +83,9 @@ export default class BasicApi {
         this.prepareAction(
           'cyber',
           'providebw',
-          { accountName: 'cyber' },
+          { accountName: bwprovider, permission: 'providebw' },
           {
-            provider: 'cyber',
+            provider: bwprovider,
             account: actor.accountName,
           }
         )
