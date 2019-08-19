@@ -88,6 +88,7 @@ export default class CyberGolos {
 
     privateKey = privateKey.trim();
 
+    /* 
     if (/^P/.test(privateKey) && !ecc.isValidPrivate(privateKey.substring(1))) {
       throw new Error('Invalid master key');
     }
@@ -95,6 +96,7 @@ export default class CyberGolos {
     if (!/^P/.test(privateKey) && !ecc.isValidPrivate(privateKey)) {
       throw new Error('Invalid private key');
     }
+    */
 
     const keys = getKeyPairFromPrivateOrMaster(normalizedName, privateKey, keyRole);
 
