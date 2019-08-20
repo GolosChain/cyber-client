@@ -9,6 +9,7 @@ import Emit from './emit';
 import Vesting from './vesting';
 import Cyber from './cyber';
 import Domain from './domain';
+import Charge from './charge';
 
 export default {
   basic: Basic,
@@ -22,4 +23,5 @@ export default {
   vesting: Vesting,
   cyber: Cyber,
   domain: Domain,
+  charge: Charge,
 };
