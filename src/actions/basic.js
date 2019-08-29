@@ -65,7 +65,7 @@ export default class BasicApi {
     actionName,
     actor,
     data,
-    { broadcast = true, msig = false, msigExpires = 600, providebw = false, bwprovider = 'cyber' } = {}
+    { broadcast = true, msig = false, msigExpires = 600, providebw = false, bwprovider = 'cyber', delaySec = 0 } = {}
   ) => {
     this._validateTransactionOptions(contractAccount, actionName, actor, data);
 
@@ -73,7 +73,7 @@ export default class BasicApi {
 
     if (msig) {
       return {
-        ...(await this._makeTransactionHeader({ expires: msigExpires })),
+        ...(await this._makeTransactionHeader({ expires: msigExpires, delaySec })),
         actions: await this.api.serializeActions(actions),
       };
     }
@@ -93,34 +93,32 @@ export default class BasicApi {
     }
 
     if (broadcast || providebw) {
-      return await this.transact(actions, { providebw, broadcast });
+      return await this.transact({ actions, delay_sec: delaySec }, { providebw, broadcast });
     }
 
     return actions;
   };
 
-  async transact(actions, options) {
-    return await this.api.transact(
-      { actions },
-      {
-        ...options,
-        blocksBehind: BLOCKS_BEHIND,
-        expireSeconds: EXPIRE_SECONDS,
-      }
-    );
+  async transact(trx, options) {
+    return await this.api.transact(trx, {
+      ...options,
+      blocksBehind: BLOCKS_BEHIND,
+      expireSeconds: EXPIRE_SECONDS,
+    });
   }
 
-  async _makeTransactionHeader({ expires }) {
+  async _makeTransactionHeader({ expires, delaySec }) {
     const info = await this.api.rpc.get_info();
     const refBlock = await this.api.rpc.get_block(info.head_block_num - BLOCKS_BEHIND);
 
     return {
       ...this.api.getDefaultTransactionHeader(),
       ...Serialize.transactionHeader(refBlock, expires),
+      delay_sec: delaySec,
     };
   }
 
-  sendActions(_, actions, options) {
-    return this.transact(actions, options);
+  sendTransaction(_, trx, options) {
+    return this.transact(trx, options);
   }
 }
