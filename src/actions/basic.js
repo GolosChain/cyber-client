@@ -101,11 +101,11 @@ export default class BasicApi {
       );
     }
 
-    if (broadcast || providebw) {
-      return await this.transact({ actions: preparedActions, delay_sec: delaySec }, { providebw, broadcast });
+    if (!broadcast && !providebw) {
+      return preparedActions;
     }
 
-    return preparedActions;
+    return await this.transact({ actions: preparedActions, delay_sec: delaySec }, { providebw, broadcast });
   };
 
   async transact(trx, options) {
