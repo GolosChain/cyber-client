@@ -50,7 +50,12 @@ export default class Cyber extends Basic {
       { broadcast: false }
     );
 
-    return this.transact([setcodeAction, setabiAction], { ...options, broadcast: true });
+    return this.transact(
+      {
+        actions: [setcodeAction, setabiAction],
+      },
+      { ...options, broadcast: true }
+    );
   }
 
   async cloneContract(actor, { fromContract }, options) {
