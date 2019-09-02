@@ -15,14 +15,24 @@ export default class BasicApi {
       return;
     }
 
-    for (const action of this._contractActions) {
-      this[action] = function(contractAccount, actor, data, options) {
+    for (const actionName of this._contractActions) {
+      this[actionName] = function(contractAccount, actor, data, options) {
         if (typeof contractAccount !== 'string') {
           // action(actor, data, options)
           [actor, data, options] = arguments;
           contractAccount = this._contractAccount;
         }
-        return this._transaction(contractAccount, action, actor, data, options);
+        return this._transaction(
+          [
+            {
+              contractAccount,
+              actionName,
+              actor,
+              data,
+            },
+          ],
+          options
+        );
       };
     }
   }
@@ -61,42 +71,41 @@ export default class BasicApi {
   }
 
   _transaction = async (
-    contractAccount,
-    actionName,
-    actor,
-    data,
+    actions,
     { broadcast = true, msig = false, msigExpires = 600, providebw = false, bwprovider = 'cyber', delaySec = 0 } = {}
   ) => {
-    this._validateTransactionOptions(contractAccount, actionName, actor, data);
+    const preparedActions = actions.map(({ contractAccount, actionName, actor, data }) => {
+      this._validateTransactionOptions(contractAccount, actionName, actor, data);
 
-    const actions = [this.prepareAction(contractAccount, actionName, actor, data)];
+      return this.prepareAction(contractAccount, actionName, actor, data);
+    });
 
     if (msig) {
       return {
         ...(await this._makeTransactionHeader({ expires: msigExpires, delaySec })),
-        actions: await this.api.serializeActions(actions),
+        actions: await this.api.serializeActions(preparedActions),
       };
     }
 
     if (providebw) {
-      actions.push(
+      preparedActions.push(
         this.prepareAction(
           'cyber',
           'providebw',
           { accountName: bwprovider, permission: 'providebw' },
           {
             provider: bwprovider,
-            account: actor.accountName,
+            account: actions[0].actor.accountName,
           }
         )
       );
     }
 
     if (broadcast || providebw) {
-      return await this.transact({ actions, delay_sec: delaySec }, { providebw, broadcast });
+      return await this.transact({ actions: preparedActions, delay_sec: delaySec }, { providebw, broadcast });
     }
 
-    return actions;
+    return preparedActions;
   };
 
   async transact(trx, options) {
@@ -118,7 +127,7 @@ export default class BasicApi {
     };
   }
 
-  sendTransaction(_, trx, options) {
-    return this.transact(trx, options);
+  executeActions(_, actions, options) {
+    return this._transaction(actions, options);
   }
 }
