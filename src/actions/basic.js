@@ -78,7 +78,14 @@ export default class BasicApi {
 
   _transaction = async (
     actions,
-    { broadcast = true, msig = false, msigExpires = 600, providebw = false, bwprovider = 'cyber', delaySec = 0 } = {}
+    {
+      broadcast = true,
+      msig = false,
+      msigExpires = 600,
+      provideBandwidthFor = null,
+      bandwidthProvider = 'cyber',
+      delaySec = 0,
+    } = {}
   ) => {
     const preparedActions = actions.map(({ contractAccount, actionName, auth, data }) => {
       const authList = this._normalizeAuth(auth);
@@ -95,20 +102,23 @@ export default class BasicApi {
       };
     }
 
-    if (providebw) {
+    if (provideBandwidthFor) {
       preparedActions.push(
-        this.prepareAction('cyber', 'providebw', [{ actor: bwprovider, permission: 'providebw' }], {
-          provider: bwprovider,
-          account: preparedActions[0].authorization[0].actor,
+        this.prepareAction('cyber', 'providebw', [{ actor: bandwidthProvider, permission: 'providebw' }], {
+          provider: bandwidthProvider,
+          account: provideBandwidthFor,
         })
       );
     }
 
-    if (!broadcast && !providebw) {
+    if (!broadcast && !provideBandwidthFor) {
       return preparedActions;
     }
 
-    return await this.transact({ actions: preparedActions, delay_sec: delaySec }, { providebw, broadcast });
+    return await this.transact(
+      { actions: preparedActions, delay_sec: delaySec },
+      { providebw: Boolean(provideBandwidthFor), broadcast }
+    );
   };
 
   async transact(trx, options) {
