@@ -16,10 +16,10 @@ export default class BasicApi {
     }
 
     for (const actionName of this._contractActions) {
-      this[actionName] = function(contractAccount, actor, data, options) {
+      this[actionName] = function(contractAccount, auth, data, options) {
         if (typeof contractAccount !== 'string') {
           // action(actor, data, options)
-          [actor, data, options] = arguments;
+          [auth, data, options] = arguments;
           contractAccount = this._contractAccount;
         }
         return this._transaction(
@@ -27,7 +27,7 @@ export default class BasicApi {
             {
               contractAccount,
               actionName,
-              actor,
+              auth,
               data,
             },
           ],
@@ -37,9 +37,15 @@ export default class BasicApi {
     }
   }
 
-  _verifyActor({ accountName } = {}) {
-    if (!accountName) {
-      throw new Error('Parameter "actor" should be an object with a field "accountName"');
+  _verifyAuth(authList) {
+    if (authList.length === 0) {
+      throw new Error('Empty "auth" parameter');
+    }
+
+    for (const { actor, accountName } of authList) {
+      if (!actor && !accountName) {
+        throw new Error('Item in "auth" should be an object with a field "actor"');
+      }
     }
   }
 
@@ -55,17 +61,17 @@ export default class BasicApi {
     }
   }
 
-  _validateTransactionOptions(contractAccount, actionName, actor, data) {
+  _validateTransactionOptions(contractAccount, actionName, authList, data) {
     this._verifyContractAccount(contractAccount);
     this._verifyApi();
-    this._verifyActor(actor);
+    this._verifyAuth(authList);
   }
 
-  prepareAction(contractAccount, actionName, actor, data) {
+  prepareAction(contractAccount, actionName, authList, data) {
     return {
       account: contractAccount,
       name: actionName,
-      authorization: [{ actor: actor.accountName, permission: actor.permission || 'active' }],
+      authorization: authList,
       data,
     };
   }
@@ -74,10 +80,12 @@ export default class BasicApi {
     actions,
     { broadcast = true, msig = false, msigExpires = 600, providebw = false, bwprovider = 'cyber', delaySec = 0 } = {}
   ) => {
-    const preparedActions = actions.map(({ contractAccount, actionName, actor, data }) => {
-      this._validateTransactionOptions(contractAccount, actionName, actor, data);
+    const preparedActions = actions.map(({ contractAccount, actionName, auth, data }) => {
+      const authList = this._normalizeAuth(auth);
 
-      return this.prepareAction(contractAccount, actionName, actor, data);
+      this._validateTransactionOptions(contractAccount, actionName, authList, data);
+
+      return this.prepareAction(contractAccount, actionName, authList, data);
     });
 
     if (msig) {
@@ -89,15 +97,10 @@ export default class BasicApi {
 
     if (providebw) {
       preparedActions.push(
-        this.prepareAction(
-          'cyber',
-          'providebw',
-          { accountName: bwprovider, permission: 'providebw' },
-          {
-            provider: bwprovider,
-            account: actions[0].actor.accountName,
-          }
-        )
+        this.prepareAction('cyber', 'providebw', [{ actor: bwprovider, permission: 'providebw' }], {
+          provider: bwprovider,
+          account: preparedActions[0].authorization[0].actor,
+        })
       );
     }
 
@@ -125,6 +128,23 @@ export default class BasicApi {
       ...Serialize.transactionHeader(refBlock, expires),
       delay_sec: delaySec,
     };
+  }
+
+  _normalizeAuth(auth) {
+    if (!auth) {
+      return [];
+    }
+
+    let authList = auth;
+
+    if (!Array.isArray(auth)) {
+      authList = [auth];
+    }
+
+    return authList.map(({ actor, accountName, permission }) => ({
+      actor: actor || accountName,
+      permission: permission || 'active',
+    }));
   }
 
   executeActions(_, actions, options) {
