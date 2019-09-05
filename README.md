@@ -18,17 +18,17 @@ cyber.initProvider(key);
 
 Все транзакции сгруппированны по контрактам, общий вид вызова транзакции:
 
-cyber.**CONTRACT**.**METHOD**({ **accountName** }, **params**, **options**);
+cyber.**CONTRACT**.**METHOD**({ **actor** }, **params**, **options**);
 
 - **CONTRACT** - Имя контакта (basic, ctrl, publish, ...). Полный список можно посмотреть [тут](src/actions)
 - **METHOD** - Имя метода в контракте (смотреть внутри контакта)
-- **accountName** {string} - Имя аккаунта подписывающего транзакцию
+- **actor** {string} - Имя аккаунта подписывающего транзакцию
 - **params** {Object} - Объект параметров которые будут переданы один к одному в блокчейн
 - **options** {Object} - Опции для самой библиотеки cyber-client
 
 Список доступных опций:
 
-- **providebw** {boolean} _(default: false)_ - создать транзакцию от своего имени но дать возможность другому лицу оплатить все накладные расходы связанные с проведением данной транзакции.
+- **provideBandwidthFor** {string} - аккаунт для которого надо предоставить bandwidth (пропускную способность БЧ).
 - **broadcast** {boolean} _(default: true)_ - при значении false транзакция не будет автоматически отослана в сеть. Нужно например в тех случаях когда нужно передать транзакцию в сыров виде для дальнейшей подписи другими лицами.
 
 В дальшей документации будут описаны только структура параметров (аргумент params), так как остальные параметры везде одинаковы.
@@ -91,9 +91,9 @@ const result = await createmssg({
 
 ```javascript
 cyber.publish.upvote(
-  { accountName },
+  { actor },
   {
-    voter: accountName,
+    voter: actor,
     message_id: {
       author: '...',
       permlink: '...',
@@ -162,8 +162,8 @@ cyber.publish.upvote(
 ```
 
 ```javascript
-await cyber.social.updatemeta({ accountName }, {
-  account: accountName,
+await cyber.social.updatemeta({ actor }, {
+  account: actor,
   meta: {
     facebook: 'my-facebook-account',
     ...
