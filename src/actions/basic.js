@@ -85,6 +85,7 @@ export default class BasicApi {
       provideBandwidthFor = null,
       bandwidthProvider = 'cyber',
       delaySec = 0,
+      expireSeconds = null,
       signByActors = null,
     } = {}
   ) => {
@@ -132,7 +133,7 @@ export default class BasicApi {
 
     return await this.transact(
       { actions: preparedActions, delay_sec: delaySec },
-      { providebw: Boolean(provideBandwidthFor), broadcast, signByActors }
+      { providebw: Boolean(provideBandwidthFor), broadcast, signByActors, expireSeconds }
     );
   };
 
@@ -140,7 +141,7 @@ export default class BasicApi {
     return await this.api.transact(trx, {
       ...options,
       blocksBehind: BLOCKS_BEHIND,
-      expireSeconds: EXPIRE_SECONDS,
+      expireSeconds: (options && options.expireSeconds) || EXPIRE_SECONDS,
     });
   }
 
