@@ -107,10 +107,20 @@ export default class BasicApi {
 
       for (const account of list) {
         preparedActions.push(
-          this.prepareAction('cyber', 'providebw', [{ actor: bandwidthProvider, permission: 'providebw' }], {
-            provider: bandwidthProvider,
-            account: provideBandwidthFor,
-          })
+          this.prepareAction(
+            'cyber',
+            'providebw',
+            [
+              {
+                actor: bandwidthProvider,
+                permission: 'providebw',
+              },
+            ],
+            {
+              provider: bandwidthProvider,
+              account,
+            }
+          )
         );
       }
     }
