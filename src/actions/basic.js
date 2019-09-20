@@ -85,6 +85,7 @@ export default class BasicApi {
       provideBandwidthFor = null,
       bandwidthProvider = 'cyber',
       delaySec = 0,
+      signByActors = null,
     } = {}
   ) => {
     const preparedActions = actions.map(({ contractAccount, actionName, auth, data }) => {
@@ -131,7 +132,7 @@ export default class BasicApi {
 
     return await this.transact(
       { actions: preparedActions, delay_sec: delaySec },
-      { providebw: Boolean(provideBandwidthFor), broadcast }
+      { providebw: Boolean(provideBandwidthFor), broadcast, signByActors }
     );
   };
 
