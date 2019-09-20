@@ -21,7 +21,7 @@
   "author": "Good guys from Golos",
   "dependencies": {
     "@babel/runtime": "^7.2.0",
-    "cyberwayjs": "^20.0.0-beta7",
+    "cyberwayjs": "20.0.0-beta8",
     "idb": "^3.0.2",
     "node-fetch": "^2.3.0",
     "text-encoding": "^0.7.0"

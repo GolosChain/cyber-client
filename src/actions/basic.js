@@ -103,12 +103,16 @@ export default class BasicApi {
     }
 
     if (provideBandwidthFor) {
-      preparedActions.push(
-        this.prepareAction('cyber', 'providebw', [{ actor: bandwidthProvider, permission: 'providebw' }], {
-          provider: bandwidthProvider,
-          account: provideBandwidthFor,
-        })
-      );
+      const list = Array.isArray(provideBandwidthFor) ? provideBandwidthFor : [provideBandwidthFor];
+
+      for (const account of list) {
+        preparedActions.push(
+          this.prepareAction('cyber', 'providebw', [{ actor: bandwidthProvider, permission: 'providebw' }], {
+            provider: bandwidthProvider,
+            account: provideBandwidthFor,
+          })
+        );
+      }
     }
 
     if (!broadcast && !provideBandwidthFor) {
