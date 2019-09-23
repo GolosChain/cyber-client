@@ -85,6 +85,8 @@ export default class BasicApi {
       provideBandwidthFor = null,
       bandwidthProvider = 'cyber',
       delaySec = 0,
+      expireSeconds = null,
+      signByActors = null,
     } = {}
   ) => {
     const preparedActions = actions.map(({ contractAccount, actionName, auth, data }) => {
@@ -103,12 +105,26 @@ export default class BasicApi {
     }
 
     if (provideBandwidthFor) {
-      preparedActions.push(
-        this.prepareAction('cyber', 'providebw', [{ actor: bandwidthProvider, permission: 'providebw' }], {
-          provider: bandwidthProvider,
-          account: provideBandwidthFor,
-        })
-      );
+      const list = Array.isArray(provideBandwidthFor) ? provideBandwidthFor : [provideBandwidthFor];
+
+      for (const account of list) {
+        preparedActions.push(
+          this.prepareAction(
+            'cyber',
+            'providebw',
+            [
+              {
+                actor: bandwidthProvider,
+                permission: 'providebw',
+              },
+            ],
+            {
+              provider: bandwidthProvider,
+              account,
+            }
+          )
+        );
+      }
     }
 
     if (!broadcast && !provideBandwidthFor) {
@@ -117,7 +133,7 @@ export default class BasicApi {
 
     return await this.transact(
       { actions: preparedActions, delay_sec: delaySec },
-      { providebw: Boolean(provideBandwidthFor), broadcast }
+      { providebw: Boolean(provideBandwidthFor), broadcast, signByActors, expireSeconds }
     );
   };
 
@@ -125,7 +141,7 @@ export default class BasicApi {
     return await this.api.transact(trx, {
       ...options,
       blocksBehind: BLOCKS_BEHIND,
-      expireSeconds: EXPIRE_SECONDS,
+      expireSeconds: (options && options.expireSeconds) || EXPIRE_SECONDS,
     });
   }
 
