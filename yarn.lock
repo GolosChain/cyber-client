@@ -1712,10 +1712,10 @@ crypto-browserify@^3.11.0:
     randombytes "^2.0.0"
     randomfill "^1.0.3"
 
-cyberwayjs@20.0.0-beta8:
-  version "20.0.0-beta8"
-  resolved "https://registry.yarnpkg.com/cyberwayjs/-/cyberwayjs-20.0.0-beta8.tgz#390ce65ff9c2e22ba64ee32273d5f92949481d5e"
-  integrity sha512-uZUgna4lY2gSbhL6Nif0QIXNneWxAuO8n9ze/QHWyzsz18JDXr0ICFuSkAF1uYcXR/5zHZFey/mL4FrEyGJl6Q==
+cyberwayjs@^20.0.2:
+  version "20.0.2"
+  resolved "https://registry.yarnpkg.com/cyberwayjs/-/cyberwayjs-20.0.2.tgz#785c725f43efa04f7e77878ac78f0b6dedef2f9b"
+  integrity sha512-wU5lTx4fjqvDEWv9HH7+/CmLmN0GGCymM5YH20buATjMq/s7eeGZcgiJllKTTDkiPele6HaswUHwZ5DwLkEM0w==
   dependencies:
     babel-polyfill "^6.26.0"
     eosjs-ecc "^4.0.1"
